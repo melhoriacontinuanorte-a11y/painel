@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>Painel de Acompanhamento da Prod Norte</title>
+    <meta charset="windows-1252">
+
+    <style type="text/css">
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+
+        body {
+            background: #000000;
+            color: #e9ecef;
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        }
+
+        .container-geral {
+            width: 100vw;
+            height: 100vh;
+            padding: 0.8vh 0.8vw;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8vh;
+        }
+
+        .semborda {
+            border: 0;
+            background: transparent;
+        }
+
+        /* HEADER */
+        .header-wrap {
+            flex: 0 0 auto;
+            background: linear-gradient(90deg, rgba(255,255,255,0.04), transparent);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.6vh;
+            padding: 0.8vh 1vw;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 1vw;
+            width: 100%;
+        }
+
+        .header-logo {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18%;
+            min-width: 170px;
+        }
+
+        .logo-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 0.6vh 0.9vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        .logo-card img {
+            height: 5.2vh;
+            max-height: 48px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-title {
+            flex: 1 1 auto;
+            font-size: clamp(22px, 2.6vh, 36px);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: #f8f9fa;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-date {
+            flex: 0 0 auto;
+            font-size: clamp(18px, 2.2vh, 30px);
+            font-weight: 700;
+            color: #adb5bd;
+            text-align: right;
+            white-space: nowrap;
+            min-width: 220px;
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            background: #45c48a;
+            border-radius: 50%;
+            margin-right: 0.6vw;
+            vertical-align: middle;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(69, 196, 138, 0.5); }
+            50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(69, 196, 138, 0); }
+        }
+
+        /* MAIN */
+        .main-wrap {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8vh;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.8vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0.3vh 1.5vh rgba(0, 0, 0, 0.25);
+            min-height: 0;
+        }
+
+        .panel-head {
+            flex: 0 0 auto;
+            padding: 1.05vh 1vw;
+            font-size: clamp(22px, 2.6vh, 36px);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-align: center;
+            border-bottom: 2px solid;
+        }
+
+        .head-verde { background: linear-gradient(90deg, #0f5132, #198754); color: #d1e7dd; border-bottom-color: #45c48a; }
+        .head-vermelho { background: linear-gradient(90deg, #842029, #dc3545); color: #f8d7da; border-bottom-color: #ff8f8f; }
+        .head-azul { background: linear-gradient(90deg, #084298, #0d6efd); color: #cfe2ff; border-bottom-color: #7aaeff; }
+
+        .head-cinza {
+            background: linear-gradient(90deg, #084298, #0d6efd);
+            color: #ffffff;
+            border-bottom-color: #7aaeff;
+        }
+
+        /* MENSAL EM AZUL, TEXTO BRANCO */
+        .head-mensal {
+            background: linear-gradient(90deg, #084298, #0d6efd);
+            color: #ffffff;
+            border-bottom-color: #7aaeff;
+        }
+
+        .panel-body {
+            flex: 1;
+            padding: 1vh;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* Diario */
+        .painel-diario {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .daily-body {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1vh;
+        }
+
+        .daily-grid {
+            flex: 1 1 0;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1.1vh 1vw;
+            align-items: stretch;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.6vh;
+            padding: 0;
+            text-align: center;
+            box-shadow: 0 0.2vh 0.8vh rgba(0, 0, 0, 0.2);
+            min-height: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .kpi-label {
+            background: rgba(79, 140, 255, 0.18);
+            border-bottom: 1px solid rgba(79, 140, 255, 0.45);
+            color: #ffffff;
+            font-size: clamp(20px, 2.2vh, 34px);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            line-height: 1.1;
+            padding: 1.4vh 0.8vw;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+        }
+
+        .kpi-value {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(70px, 9vh, 150px);
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+            padding: 2vh 0;
+        }
+
+        .kpi-warning { border-top: 3px solid #4f8cff; }
+        .kpi-danger { border-top: 3px solid #4f8cff; }
+        .kpi-success { border-top: 3px solid #4f8cff; }
+        .kpi-info { border-top: 3px solid #4f8cff; }
+        .kpi-purple { border-top: 3px solid #4f8cff; }
+        .kpi-orange { border-top: 3px solid #4f8cff; }
+
+        .section-spacer { height: 0.2vh; }
+
+        /* MENSAL */
+        .painel-mensal {
+            flex: 0 0 auto;
+        }
+
+        .kpi-grid.cols-3 {
+            display: grid;
+            gap: 0.8vh 0.8vw;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .painel-mensal .kpi-card {
+            padding: 0;
+        }
+
+        .painel-mensal .kpi-label {
+            font-size: clamp(18px, 2.0vh, 28px);
+        }
+
+        .painel-mensal .kpi-value {
+            font-size: clamp(58px, 7vh, 110px);
+        }
+
+        .meta-valor.verde {
+            background: linear-gradient(180deg, rgba(69,196,138,0.25), rgba(69,196,138,0.08));
+        }
+
+        .meta-valor.vermelho {
+            background: linear-gradient(180deg, rgba(255,107,107,0.25), rgba(255,107,107,0.08));
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 1400px) {
+            .daily-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .kpi-grid.cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 900px) {
+            .daily-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .kpi-grid.cols-3 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 650px) {
+            .daily-grid { grid-template-columns: 1fr; }
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+    </style>
+</head>
+
+<body>
+
+<div class="container-geral">
+
+    <div class="header-wrap">
+        <div class="header-row">
+            <div class="header-logo">
+                <div class="logo-card">
+                    <img src="https://alterosapneus.com.br/wp-content/uploads/2021/10/Asset-1.png" alt="Alterosa Pneus">
+                </div>
+            </div>
+
+            <div class="header-title">Painel de Acompanhamento da Prod Norte</div>
+
+            <div class="header-date"><span class="pulse-dot"></span>03/05/2026 12:41</div>
+        </div>
+    </div>
+
+    <div class="main-wrap">
+
+        <div class="panel painel-diario">
+            <div class="panel-head head-cinza">Acompanhamento Diario (Intermediario)</div>
+            <div class="panel-body daily-body">
+
+                <!-- LINHA 1 -->
+<div class="daily-grid">
+    <div class="kpi-card kpi-info">
+        <div class="kpi-label">Exame Inicial</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-warning">
+        <div class="kpi-label">Raspa</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-success">
+        <div class="kpi-label">Escareacao</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-purple">
+        <div class="kpi-label">Enchimento</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-info">
+        <div class="kpi-label">Cobertura</div>
+        <div class="kpi-value">0</div>
+    </div>
+</div>
+
+<!-- LINHA 2 -->
+<div class="daily-grid">
+    <div class="kpi-card kpi-danger">
+        <div class="kpi-label">Filetagem</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-warning">
+        <div class="kpi-label">Vulcanizacao</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-success">
+        <div class="kpi-label">Tap Rap Prep.</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-danger">
+        <div class="kpi-label">Tap Rap Aplic.</div>
+        <div class="kpi-value">0</div>
+    </div>
+
+    <div class="kpi-card kpi-purple">
+        <div class="kpi-label">Exame Final</div>
+        <div class="kpi-value">0</div>
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="panel painel-mensal">
+            <div class="panel-head head-mensal">Acompanhamento Acum Mensal Setor  /  Percentual Meta Geral</div>
+            <div class="panel-body">
+                <div class="kpi-grid cols-3">
+                    <div class="kpi-card kpi-success">
+                        <div class="kpi-label">Qtde Reforma</div>
+                        <div class="kpi-value">2</div>
+                    </div>
+
+                    <div class="kpi-card kpi-info">
+                        <div class="kpi-label">Qtde Reparos</div>
+                        <div class="kpi-value">2</div>
+                    </div>
+
+                    <div class="kpi-card kpi-warning meta-valor" id="metaValor">
+                        <div class="kpi-label">Percentual da Meta Geral</div>
+                        <div class="kpi-value">0,00%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+(function () {
+    var el = document.getElementById("metaValor");
+    if (!el) return;
+
+    var t = el.innerText || el.textContent || "";
+    var n = parseFloat(t.replace('%', '').replace(',', '.'));
+
+    if (isNaN(n)) return;
+
+    if (n >= 100) el.className = "kpi-card meta-valor verde";
+    else if (n < 80) el.className = "kpi-card meta-valor vermelho";
+})();
+</script>
+
+</body>
+</html>
